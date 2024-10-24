@@ -4,14 +4,20 @@ clc
 
 SignalEndIdx = 25; %%%number of signals
 
-sub_freq_delta = (40 * 10^6) / 30;
-frequency = 5.32e9; % center frequency
+frequency = 5.64e9; % center frequency
 M = 3;    % number of rx antennas
+
 fs = 40e6; % channel bandwidth
+SubCarrInd = [-58,-54,-50,-46,-42,-38,-34,-30,-26,-22,-18,-14,-10,-6,-2,2,6,10,14,18,22,26,30,34,38,42,46,50,54,58]; % WiFi subcarrier indices at which CSI is available
+
+% fs = 20e6; % channel bandwidth
+% SubCarrInd = [-28, -26, -24, -22, -20, -18, -16, -14, -12, -10, -8, -6, -4, -2, -1, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 28];
+sub_freq_delta = fs  / 30;
 c = 3e8;  % speed of light
 antenna_distance = 2.6e-2;  % distance between adjacent antennas in the linear antenna array
 % dTx = 2.6e-2; 
-SubCarrInd = [-58,-54,-50,-46,-42,-38,-34,-30,-26,-22,-18,-14,-10,-6,-2,2,6,10,14,18,22,26,30,34,38,42,46,50,54,58]; % WiFi subcarrier indices at which CSI is available
+% fs = 40e6
+
 N = length(SubCarrInd); % number of subcarriers
 % subCarrSize = 128;  % total number fo
 fgap = 312.5e3; % frequency gap in Hz between successive subcarriers in WiFi
@@ -28,7 +34,7 @@ k=1;
  for i=1:size0
      
      csi = squeeze(get_scaled_csi(csi_trace{i}));
-     
+     %231
     antenna1_card1(k,:)=csi(1,:);
     antenna2_card1(k,:)=csi(2,:);
     antenna3_card1(k,:)=csi(3,:);
@@ -193,7 +199,7 @@ eigenvectors = Qn; % size:40*15
     theta = -90:1:90; 
     % time in milliseconds
     %% TODO: Tuning tau....
-    tau = 0:(1.0 * 10^-9):(20 * 10^-9);
+    tau = -(2 * 10^-8):(0.1 * 10^-8):(2 * 10^-8);
     %tau = 0:(100.0 * 10^-9):(3000 * 10^-9);
     Pmusic = zeros(length(theta), length(tau));
     % Angle of Arrival Loop (AoA)

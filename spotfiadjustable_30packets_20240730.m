@@ -13,7 +13,7 @@ N = length(SubCarrInd);
 % fgap = 312.5e3;
 lambda = c/frequency;
 T = 1;
-csi_trace = read_bf_file(fullfile('my_data', '01_07_15.dat'));  % 1122 * 1
+csi_trace = read_bf_file(fullfile('my_data', 'lb_01_01_01.dat'));  % 1122 * 1
 size0=length(csi_trace);
 antenna1_card1(size0,30) = 0;   % 1122 * 30
 antenna2_card1(size0,30) = 0;   % 1122 * 30
@@ -42,7 +42,7 @@ for i=1:33:990
     end
     CSI(round(i/33)+1,:,:)=tempcsi;
 end
-ind = 28;
+ind = 20;
 x = squeeze(CSI(ind,:,:));
 L = size(x);
 global DEBUG_PATHS

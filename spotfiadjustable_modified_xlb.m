@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-SignalEndIdx = 25; %%%number of signals
+SignalEndIdx = 39; %%%number of signals
 
 sub_freq_delta = (40 * 10^6) / 30;
 frequency = 5.32e9; % center frequency

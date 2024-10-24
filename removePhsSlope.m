@@ -2,12 +2,13 @@ function [PhsSlope, PhsCons] = removePhsSlope(vna_response,M,SubCarrInd,N)
 useCvxgen = 0;
 if ~useCvxgen
     PhsRelFirstPac = unwrap(angle(vna_response));
+    %PhsRelFirstPac = angle(vna_response);
     % % Below code is for when you are using phase relative to
     % % the first packet.
     for antIdForPhs = 1:M
-        if  PhsRelFirstPac(1,antIdForPhs) - PhsRelFirstPac(1,1) > pi
+        if  PhsRelFirstPac(1,antIdForPhs) - PhsRelFirstPac(1,2) > pi
             PhsRelFirstPac(:,antIdForPhs) = PhsRelFirstPac(:,antIdForPhs) - 2*pi;
-        elseif PhsRelFirstPac(1,antIdForPhs) - PhsRelFirstPac(1,1) < -pi
+        elseif PhsRelFirstPac(1,antIdForPhs) - PhsRelFirstPac(1,2) < -pi
             PhsRelFirstPac(:,antIdForPhs) = PhsRelFirstPac(:,antIdForPhs) + 2*pi;
         end
     end

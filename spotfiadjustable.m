@@ -18,7 +18,7 @@ fgap = 312.5e3; % frequency gap in Hz between successive subcarriers in WiFi
 lambda = c/frequency;  % wavelength
 T = 1; % number of transmitter antennas
 % csi_trace = read_bf_file('data1_1126_rx3.dat'); %data_1DAoA.dat
-csi_trace = read_bf_file('rb_01_01_01.dat'); %data_1DAoA.dat
+csi_trace = read_bf_file(fullfile('my_data', 'lf_30_39_01.dat')); %data_1DAoA.dat
 size0=length(csi_trace);
 antenna1_card1(size0,30) = 0;
 antenna2_card1(size0,30) = 0;
@@ -37,7 +37,7 @@ k=1;
      
  end
  % pack=4500; %packet number
- pack=450; %packet number
+ pack=1000; %packet number
 sample_csi_trace = [antenna1_card1(pack,:)'; antenna2_card1(pack,:)'; antenna3_card1(pack,:)'];
 csi_plot = reshape(sample_csi_trace, N, M);
 [PhsSlope, PhsCons] = removePhsSlope(csi_plot,M,SubCarrInd,N);
@@ -172,7 +172,7 @@ eigenvectors = Qn;
     theta = -90:1:90; 
     % time in milliseconds
     %% TODO: Tuning tau....
-    tau = 0:(1.0 * 10^-9):(50 * 10^-9);
+    tau = (-5 * 10^-8):(0.1 * 10^-8):(5 * 10^-8);
     %tau = 0:(100.0 * 10^-9):(3000 * 10^-9);
     Pmusic = zeros(length(theta), length(tau));
     % Angle of Arrival Loop (AoA)
@@ -198,12 +198,14 @@ eigenvectors = Qn;
 %     
         % Theta (AoA) & Tau (ToF) 3D Plot
         figure('Name', 'AoA & ToF MUSIC Peaks', 'NumberTitle', 'off')
-        mesh(tau, theta, Pmusic)
+        surf(tau, theta, Pmusic)
         xlabel('Time of Flight')
         ylabel('Angle of Arrival in degrees')
         zlabel('Spectrum Peaks')
         title('AoA and ToF Estimation from Modified MUSIC Algorithm')
         grid on
+        shading interp
+        view([0,90])
 
    
    
