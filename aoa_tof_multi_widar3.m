@@ -1,11 +1,7 @@
-%% Computes aoa-tof with xrf55
-% 原始视频帧率: 30 Hz，这里建议降采样到20 Hz
-% 发射器速率: 200 packet/s
-% 输入的一个.dat文件为一个CSI样本,大小为: 1000×1×3×3×30 (#packet, #transmitter, #receiver, #antenna, #subcarrier)
-%    包含了5s的数据，一个packet对应0.005s，
-% 若使用原始帧率:这里对6 packets 进行联合估计出一张aoa-tof图，对应0.03s，对应33帧率的视频，而xf55的视频是30帧
-% 改用20帧率:这里进行10包联合估计，来匹配20帧率的视频，一个.dat文件共生成100张aoa-tof图
-
+%% Computes aoa-tof with widar3.0
+% 发射器速率: 1000 pack/s
+% 输入的一个.dat文件为一个CSI样本,大小为: 2000×1×3×3×30 (#packet, #transmitter, #receiver, #antenna, #subcarrier)
+% 本文件进行50 packs 联合估计出一张图,对应0.05s，一个.dot文件会生成40张aoa-tof图
 
 % [tau, theta, Pmusic] = estimate_aoa_tof('my_data/rb_01_01_01.dat', 'C:\Users\LibaoXing\Desktop\rb_01_01_01.mat');
 process_dat_files('E:\WorkSpace\datasets\person_in_wifi_3d\CSI', 'E:\WorkSpace\datasets\person_in_wifi_3d\AOA-TOF', 'E:\WorkSpace\datasets\person_in_wifi_3d\AOA-TOF-PNG')
@@ -62,7 +58,7 @@ function [tau, theta, Pmusic] = estimate_aoa_tof(source_path, save_path, png_sav
 % 参数设置
 SignalEndIdx = 25;
 sub_freq_delta = (40 * 10^6) / 30;
-frequency = 5.64e9;
+frequency = 5.825e9;
 M = 3;
 antenna_distance = 2.6e-2;
 SubCarrInd = [-58,-54,-50,-46,-42,-38,-34,-30,-26,-22,-18,-14,-10,-6,-2,2,6,10,14,18,22,26,30,34,38,42,46,50,54,58];
@@ -88,10 +84,10 @@ for k = 1:size0
 end
 
 % 重塑CSI
-CSI = zeros(100, 90, 10); 
-for i = 1:10:1000
-    tempcsi = zeros(90, 10);
-    for pack = i:(i + 9)
+CSI = zeros(40, 90, 50);
+for i = 1:50:2000
+    tempcsi = zeros(90, 50);
+    for pack = i:(i + 49)
         sample_csi_trace = [antenna1_card1(pack, :)'; antenna2_card1(pack, :)'; antenna3_card1(pack, :)'];
         csi_plot = reshape(sample_csi_trace, N, M);
         [PhsSlope, PhsCons] = removePhsSlope(csi_plot, M, SubCarrInd, N);
@@ -101,7 +97,7 @@ for i = 1:10:1000
         sanitized_csi0 = relChannel_noSlope(:);
         tempcsi(:, (pack - i + 1)) = sanitized_csi0;
     end
-    CSI(round(i / 10) + 1, :, :) = tempcsi;
+    CSI(round(i / 50) + 1, :, :) = tempcsi;
 end
 
 % 计算协方差矩阵
@@ -132,7 +128,7 @@ for ind =1:size(CSI,1)
     end
 
     % 保存数据到.mat文件
-    save(sprintf('%s_%03d.mat', save_path, ind), 'tau', 'theta', 'Pmusic');
+    save(sprintf('%s_%02d.mat', save_path, ind), 'tau', 'theta', 'Pmusic');
 
     % 可视化（根据用户选择）
     if visualize
@@ -154,11 +150,10 @@ for ind =1:size(CSI,1)
         title('AoA and ToF Estimation from Modified MUSIC Algorithm');
         shading interp;
         view([0,90]);
-        saveas(I, sprintf('%s_%03d.png', png_save_path, ind));
+        saveas(I, sprintf('%s_%02d.png', png_save_path, ind));
         close(I); % 关闭图形对象，释放资源
     end
 end
-
 
 
 
@@ -166,22 +161,17 @@ end
         steering_vector = zeros(90, 1);
         k = 1;
         base_element = 1;
-
         tof_phi = omega_tof_phase11(tau, sub_freq_delta);
-        aoa_phi1 = -phi_aoa_phase11(60-theta, freq, ant_dist);
-        aoa_phi2 = phi_aoa_phase11(theta, freq, ant_dist);
+        aoa_phi = phi_aoa_phase11(theta, freq, ant_dist);
 
         for ii = 1:3
             for jj = 1:30
                 steering_vector(k, 1) = base_element * tof_phi^(jj - 1);
                 k = k + 1;
             end
-            if ii ==1
-                base_element = base_element * aoa_phi1;
-            else
-                base_element = aoa_phi2 * aoa_phi2;
-            end
+            base_element = base_element * aoa_phi;
         end
+
     end
 end
 

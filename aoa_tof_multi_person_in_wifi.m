@@ -1,3 +1,10 @@
+%% Computes aoa-tof with person in wifi 3d
+% 视频帧率: 15 Hz
+% 发射器速率: 300 pack/s
+% 输入的一个.mat文件为一个CSI样本,大小为: 3×3×30×20 (#receiver, #antenna, #subcarrier, #pack),其与一个视频帧同步
+% 为了与视频帧同步，本文件进行20 packs 联合估计，一个.mat文件只会生成一张aoa-tof图
+
+
 % [tau, theta, Pmusic] = estimate_aoa_tof('my_data/rb_01_01_01.dat', 'C:\Users\LibaoXing\Desktop\rb_01_01_01.mat');
 process_dat_files('E:\WorkSpace\datasets\person_in_wifi_3d\CSI', 'E:\WorkSpace\datasets\person_in_wifi_3d\AOA-TOF', 'E:\WorkSpace\datasets\person_in_wifi_3d\AOA-TOF-PNG')
 
@@ -55,8 +62,6 @@ function [tau, theta, Pmusic] = estimate_aoa_tof(source_path, save_path, png_sav
     sub_freq_delta = (40 * 10^6) / 30;
     frequency = 5.64e9;
     M = 3;
-    fs = 40e6;
-    c = 3e8;
     antenna_distance = 2.6e-2;
     SubCarrInd = [-58,-54,-50,-46,-42,-38,-34,-30,-26,-22,-18,-14,-10,-6,-2,2,6,10,14,18,22,26,30,34,38,42,46,50,54,58];
     N = length(SubCarrInd);
@@ -66,7 +71,7 @@ function [tau, theta, Pmusic] = estimate_aoa_tof(source_path, save_path, png_sav
 
     sample_csi_traceTmp = load(source_path); 
     sample_csi_trace0 = sample_csi_traceTmp.csi_out;
-    sample_csi_trace0 =sample_csi_trace0(1,:,:,:);
+    sample_csi_trace0 =sample_csi_trace0(2,:,:,:);
     sample_csi_trace0 = reshape(sample_csi_trace0,3,30,20);
 
     size0=size(sample_csi_trace0,3);
@@ -116,7 +121,7 @@ function [tau, theta, Pmusic] = estimate_aoa_tof(source_path, save_path, png_sav
 
     % 计算MUSIC谱
     theta = -90:1:90;
-    tau = -(4 * 10^-8):(0.25 * 10^-8):(4 * 10^-8);
+    tau = -(10 * 10^-8):(0.05 * 10^-8):(10 * 10^-8);
     Pmusic = zeros(length(theta), length(tau));
     
     for ii = 1:length(theta)
@@ -162,12 +167,16 @@ function steering_vector = compute_steering_vector90(theta, tau, freq, sub_freq_
     steering_vector = zeros(90, 1);
     k = 1;
     base_element = 1;
+    
+    tof_phi = omega_tof_phase11(tau, sub_freq_delta);
+    aoa_phi = phi_aoa_phase11(theta, freq, ant_dist);
+
     for ii = 1:3
         for jj = 1:30
-            steering_vector(k, 1) = base_element * omega_tof_phase11(tau, sub_freq_delta)^(jj - 1);
+            steering_vector(k, 1) = base_element * tof_phi^(jj - 1);
             k = k + 1;
         end
-        base_element = base_element * phi_aoa_phase11(theta, freq, ant_dist);
+        base_element = base_element * aoa_phi;
     end
 end
 
