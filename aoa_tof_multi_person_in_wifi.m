@@ -167,7 +167,7 @@ function steering_vector = compute_steering_vector90(theta, tau, freq, sub_freq_
     steering_vector = zeros(90, 1);
     k = 1;
     base_element = 1;
-    
+
     tof_phi = omega_tof_phase11(tau, sub_freq_delta);
     aoa_phi = phi_aoa_phase11(theta, freq, ant_dist);
 
