@@ -12,7 +12,7 @@ logFilePath = fullfile(targetFolder, 'log.txt');
 logFileID = fopen(logFilePath, 'a'); % 以追加模式打开文件
 
 % 找到源文件夹下所有 .dat 文件
-files = dir(fullfile(sourceFolder, '**', '*.mat'));
+files = dir(fullfile(sourceFolder, '**', '*.dat'));
 
 for i = 1:length(files)
     % 获取 .dat 文件的完整路径
@@ -66,7 +66,7 @@ N = length(SubCarrInd);
 T = 1;
 
 % 读取CSI数据
-csi_trace = load(source_path);
+csi_trace = read_bf_file(source_path);
 size0=length(csi_trace);
 
 antenna1_card1(size0,30) = 0;
@@ -76,7 +76,7 @@ antenna3_card1(size0,30) = 0;
 
 % 提取CSI
 for k = 1:size0
-    csi = squeeze(get_scaled_csi(csi_trace{i}));
+    csi = squeeze(get_scaled_csi(csi_trace{k}));
 
     antenna1_card1(k,:)=csi(1,:);
     antenna2_card1(k,:)=csi(2,:);
